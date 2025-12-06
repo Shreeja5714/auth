@@ -112,6 +112,48 @@ class UserController {
             return res.status(500).json({ message: "Failed to get user details", error: error.message });
         }
     };
+
+    //send user password reset email
+    static sendPasswordResetEmail = async (req, res) => {
+        // Implementation for sending password reset email
+        const { email } = req.body;
+        try {
+            if (!email) {
+                return res.status(400).json({ message: "Email is required" });
+            }
+            const user = await User.findOne({ email: email });
+            const secret = user._id + process.env.jwt_secret_key ;
+            if (!user) {
+                return res.status(404).json({ message: "User not found" });
+            }
+            const token = jwt.sign({ userId: user._id }, secret, { expiresIn: "15m" });
+            const link = `http://localhost:8000/api/user/reset-password/${user._id}/${token}`;
+            console.log(link);
+            return res.status(200).json({ message: "Password reset email sent successfully", resetLink: link });     
+        } catch (error) {
+            return res.status(500).json({ message: "Failed to send password reset email", error: error.message });
+        }
+    };
+
+    //link to reset password
+    static resetPassword = async (req, res) => {
+        const {password, confirmPassword} = req.body;
+        const {id, token} = req.params;
+        const user = await User.findById(id);
+        const secret = user._id + process.env.jwt_secret_key ;
+        try {
+            const verify = jwt.verify(token, secret);
+            if(password !== confirmPassword){
+                return res.status(400).json({message: "Passwords do not match"});
+            }
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash(password, salt);
+            await User.findByIdAndUpdate(user._id, { $set: { password: hashedPassword } });
+            return res.status(200).json({ message: "Password reset successfully" });
+        } catch (error) {
+            return res.status(500).json({ message: "Password reset failed", error: error.message });
+        }
+    }
 }
 
 

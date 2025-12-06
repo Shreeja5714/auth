@@ -10,6 +10,8 @@ router.use('/user-details', authMiddleware);
 // Public routes
 router.post('/register', UserController.registerUser);
 router.post('/login', UserController.loginUser);
+router.post('/send-reset-password-email', UserController.sendPasswordResetEmail);
+router.post('/reset-password/:id/:token', UserController.resetPassword);
 
 // protected routes
 router.post('/change-password', UserController.changePassword);
