@@ -1,6 +1,7 @@
 import User from "../models/user.js";
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken";
+import transporter from "../config/emailConfig.js";
 
 class UserController {
     // register user
@@ -128,7 +129,14 @@ class UserController {
             }
             const token = jwt.sign({ userId: user._id }, secret, { expiresIn: "15m" });
             const link = `http://localhost:8000/api/user/reset-password/${user._id}/${token}`;
-            console.log(link);
+            // console.log(link);
+            //send email
+            let info = await transporter.sendMail({
+                from: process.env.EMAIL_FROM,
+                to: user.email,
+                subject: "Password Reset Link",
+                html: `<a href=${link}>Click Here</a> to reset your password. This link is valid for 15 minutes.`,
+            });
             return res.status(200).json({ message: "Password reset email sent successfully", resetLink: link });     
         } catch (error) {
             return res.status(500).json({ message: "Failed to send password reset email", error: error.message });
