@@ -4,7 +4,7 @@ A complete authentication system built with Node.js, Express, MongoDB, and JWT f
 
 **Author:** Shreeja Vyas  
 **GitHub:** [@Shreeja5714](https://github.com/Shreeja5714)  
-**Email:** shreeja@example.com
+**Email:** shreejavyas228@gmail.com
 
 ## 📁 Project Structure
 ```
